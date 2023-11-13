@@ -1,9 +1,9 @@
 import fp from "fastify-plugin";
 
 
+
 class Repository {
     #items = [];
-    #errors = new Map();
 
     constructor() {
         this.init();
@@ -43,15 +43,12 @@ class Repository {
         ];
 
         this.#items = items.map((item, i) => ({...item, id: i + 1}));
-        this.#errors = new Map();
-        
         return Promise.resolve();
     }
 
-    getData(sessionId) {
+    getItems() {
         return Promise.resolve({
             items: this.#items,
-            errors: this.#errors.get(sessionId) ?? null
         });
     }
 
@@ -66,16 +63,9 @@ class Repository {
         return Promise.resolve();
     }
 
-    setError(sessionId, error) {
-        this.#errors.set(sessionId, error);
-    }
-
-    clearError(sessionId) {
-        this.#errors.delete(sessionId);
-    }
 }
 
-const plugin = fp(async (app, opts) => {
+const plugin = fp(async (app, opts) => {    
     await app.decorate('repo', new Repository());
 });
 

@@ -6,18 +6,13 @@ export default async function(app, opts) {
     });
 
     const schema = {
-        body: S.object().prop('id', S.number().required())
+        body: S.object()
+            .additionalProperties(false)
+            .prop('id', S.number().required())
+            .prop('sessionId', S.string().required())
     }
 
     app.post('/deleteitem', {schema}, async (request, reply) => {
-        const {sessionId} = request.cookies;
-        try {
-            const {id} = request.body;
-            await app.repo.deleteItem(id);
-            app.repo.clearError(sessionId);
-        }
-        catch(e) {
-            app.repo.setError(sessionId, { message: e.message });
-        }
+        app.channel.emit('deleteitem', request.body);
     });
 }
