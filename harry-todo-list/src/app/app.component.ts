@@ -11,10 +11,8 @@ import {ModalComponent} from './components/modal.component';
   template: `
     <div class="container">
       <h1>Harry's todo-list</h1>
-      <ng-container *ngIf="api.init$ | async">
-        <app-list></app-list>
-        <app-modal></app-modal>
-      </ng-container>
+      <app-list></app-list>
+      <app-modal></app-modal>
     </div>
   `,
   styles: [

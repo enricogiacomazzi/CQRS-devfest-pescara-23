@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {filter, first, map, merge, share, shareReplay, startWith, Subject, switchMap, take, tap} from 'rxjs';
+import {filter, first, map, merge, of, share, shareReplay, startWith, Subject, switchMap, take, tap} from 'rxjs';
 import {webSocket} from 'rxjs/webSocket';
 import {ItemModel, MessageModel, QueryModel, StartMessageModel} from './models';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -15,20 +15,17 @@ export class ApiService {
   private sessionId = nanoid();
   private dismiss$ = new Subject();
 
-  public init$ = this.http.post(this.baseUrl + '/commands/init', undefined).pipe(map(() => true));
-
   private ws$ =
-    webSocket<MessageModel>( `${this.baseUrl}/ws/${this.sessionId}`.replace('http:', 'ws:'));
+    webSocket<MessageModel>( `ws://localhost:3102/${this.sessionId}`.replace('http:', 'ws:'));
 
   public items$ = this.ws$.pipe(
     filter(x => x.type === 'update'),
     startWith(undefined),
-    switchMap(() => this.http.get<QueryModel>(this.baseUrl + '/queries/getdata')),
-    map(x => x.items)
+    switchMap(() => this.http.get<Array<ItemModel>>('http://localhost:3101/getitems'))
   );
 
   public deleteItem(item: ItemModel) {
-    this.http.post(this.baseUrl + '/commands/deleteitem', {id: item.id, sessionId: this.sessionId}).subscribe();
+    this.http.post('http://localhost:3100/deleteitem', {id: item.id, sessionId: this.sessionId}).subscribe();
   }
 
   public error$ = merge(
